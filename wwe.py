@@ -48,7 +48,6 @@ class Network:
         self.logged_in = False
 
     def login(self):
-        print (self.user, self.password)
         with requests.Session() as s:
 
             s.get(PRE_LOGIN_URL)
