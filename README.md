@@ -16,3 +16,6 @@ requests==2.18.4
 # Basic Usage:
 
 Super simple to use at the moment, open up the command prompt in the folder you downloaded WWE Downloader to, and run the following command: python2.7 main.py. It will ask you which show or episode you want to download.
+
+
+If you want to download a full year use the option -t year. For example: python2.7 main.py -t year
