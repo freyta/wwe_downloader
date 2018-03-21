@@ -4,6 +4,7 @@ import re
 import os
 import subprocess
 import requests
+from urllib import unquote
 import m3u8
 from xml.dom.minidom import parseString
 import sys
