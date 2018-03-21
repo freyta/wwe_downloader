@@ -2,7 +2,6 @@
 
 import re
 import os
-from urllib import unquote
 import subprocess
 import requests
 import m3u8
@@ -141,7 +140,7 @@ class Network:
                 
                 
 
-def get_user_input_show():
+def get_user_input_show_single():
     listcounter = 0
 
     for shows_zip, show_real_zip in zip(shows, show_real):
@@ -154,9 +153,15 @@ def get_user_input_show():
     if(show_option >= listcounter):
         print("Oops, you chose an invalid show. Quitting..")
         sys.exit()
+    elif(int(show_option) < 0):
+        print("Oops, you chose an invalid show. Quitting..")
+        sys.exit()
+
+    # Clear the screen after their choice
+    os.system('clear')
 
 
-    # Get a list of shows from in_ring
+    # Get a list of shows from option
     show_list = get_show_list(shows[show_option])
     
     # Set a list counter
@@ -169,26 +174,26 @@ def get_user_input_show():
     # Get the user input for which show to get the year from
     user_show = raw_input("Choose a show number from above\n")
     user_show = int(user_show)
-
-    user_show_pretty = show_list[1][user_show]
-    user_search_pretty = show_list[0][user_show][0]
     
     # If the input is higher than the amount of shows we have..
     if(int(user_show) >= listcounter):
         print("Oops, you chose an invalid show. Quitting..")
         sys.exit()
-
+    elif(int(user_show) < 0):
+        print("Oops, you chose an invalid show. Quitting..")
+        sys.exit()
+        
+    # Get readable names for the shows
+    user_show_pretty = show_list[1][user_show]
+    user_search_pretty = show_list[0][user_show][0]
 
     # Clear the screen after their choice
     os.system('clear')
-
+    
     # Make sure we don't try to find a year for Collections
     if(show_real[show_option] == "Collections"):
         return_link = "http://network.wwe.com/gen/content/tag/v1/show_name/r/" + user_search_pretty + "/jsonv4.json"
     else:
-        
-        
-        
         print "Choose a year for the show \"" + user_show_pretty + "\""
         year = get_show_year(show_list[0][user_show])
 
@@ -211,17 +216,149 @@ def get_user_input_show():
         if(int(user_year) >= listcounter):
             print("Oops, you chose an invalid show. Quitting..")
             sys.exit()
+        elif(int(user_year) < 0):
+            print("Oops, you chose an invalid show. Quitting..")
+            sys.exit()
 
         return_link = "http://network.wwe.com/gen/content/tag/v1/show_name/"+ user_year_pretty + "/r/" + user_search_pretty + "/jsonv4.json"
     
     if "PPV" in show_real[show_option]:
         show_type = "ppv"
-        print("PPV!!!!!")
     elif "Collection" in show_real[show_option]:
         show_type = "collection"
     else:
         show_type = "tvshow"
     return return_link, show_type
+    
+    
+    
+def get_user_input_show_year():
+
+    ########################
+    # Start of which company
+    ########################
+    listcounter = 0
+    user_show = 0
+
+    for shows_zip, show_real_zip in zip(shows, show_real):
+        print "Option: " + str(listcounter) + " - " + show_real_zip
+        listcounter = listcounter + 1
+
+    show_option = raw_input("Choose a show number from above\n")
+    show_option = int(show_option)
+
+    if(show_option >= listcounter):
+        print("Oops, you chose an invalid show. Quitting..")
+        sys.exit()
+    elif(int(show_option) < 0):
+        print("Oops, you chose an invalid show. Quitting..")
+        sys.exit()
+
+    # Clear the screen after their choice
+    os.system('clear')
+    ######################
+    # End of which company
+    ######################
+    # Start of which show
+    ######################
+    
+    # If we don't want a PPV
+    if((shows[show_option] != "ecw") and (shows[show_option] != "wcw") and (shows[show_option] != "wwe")): 
+        # Get a list of shows from option
+        show_list = get_show_list(shows[show_option])
+        
+        # Set a list counter
+        listcounter = 0
+
+        for search_name, show_name in zip(show_list[0], show_list[1]):
+            print("Option " + str(listcounter) + ": - " + show_name)
+            listcounter = listcounter + 1
+
+        # Get the user input for which show to get the year from
+        user_show = raw_input("Choose a show number from above\n")
+        user_show = int(user_show)
+        
+        # If the input is higher than the amount of shows we have..
+        if(int(user_show) >= listcounter):
+            print("Oops, you chose an invalid show. Quitting..")
+            sys.exit()
+        elif(int(user_show) < 0):
+            print("Oops, you chose an invalid show. Quitting..")
+            sys.exit()
+            
+        # Get readable names for the shows
+        user_show_pretty = show_list[1][user_show]
+        user_search_pretty = show_list[0][user_show][0]
+
+        # Clear the screen after their choice
+        os.system('clear')
+    else:
+        # Since we want a PPV just skip
+        user_show_pretty = show_real[show_option]
+        user_show = "PPV"
+        pass
+    
+    ######################
+    # End of which show
+    ######################
+    # Start of which year
+    ######################
+        
+    # Make sure we don't try to find a year for Collections
+    if(show_real[show_option] == "Collections"):
+        return_link = "http://network.wwe.com/gen/content/tag/v1/show_name/r/" + user_search_pretty + "/jsonv4.json"
+    else:
+        print "Choose a year for the show \"" + user_show_pretty + "\""
+
+        # Reset the list counter to 0
+        listcounter = 0
+        # If we chose a PPV
+        if "PPV" in show_real[show_option]:
+            
+            year = get_whole_year(shows[show_option])
+
+            for show_year in zip(year[0]):
+                print("Option " + str(listcounter) + ": - " + show_year[0])
+                listcounter = listcounter + 1
+                
+        # Since we chose a TV show
+        else:
+            year = get_show_year(show_list[0][user_show])
+
+            for show_year in zip(year[0]):
+                print("Option " + str(listcounter) + ": - " + show_year[0])
+                listcounter = listcounter + 1
+        
+        
+        # Get the user input for which show to get the year from
+        user_year = raw_input("Choose a year from above\n")
+        # Convert the input to an integer
+        user_year = int(user_year)
+        # Get the actual year from the shows array above
+        user_year_pretty = year[0][user_year]
+        
+        # If the input is higher than the amount of shows we have..
+        if(int(user_year) >= listcounter):
+            print("Oops, you chose an invalid show. Quitting..")
+            sys.exit()
+        elif(int(user_year) < 0):
+            print("Oops, you chose an invalid show. Quitting..")
+            sys.exit()
+        
+        # If we are trying to watch a PPV
+        if (user_show == "PPV"):
+            return_link = "http://network.wwe.com/gen/content/tag/v1/franchise/"+ user_year_pretty + "/r/" + shows[show_option] + "/jsonv4.json"
+        else:
+            return_link = "http://network.wwe.com/gen/content/tag/v1/show_name/"+ user_year_pretty + "/r/" + user_search_pretty + "/jsonv4.json"
+    
+    if "PPV" in show_real[show_option]:
+        show_type = "ppv"
+    elif "Collection" in show_real[show_option]:
+        show_type = "collection"
+    else:
+        show_type = "tvshow"
+    return return_link, show_type
+    
     
 def get_show_list(show):
 
@@ -248,22 +385,36 @@ def get_show_list(show):
     
 def get_show_year(show):
 
-    year            = []
+    year = []
 
-    # Example link: http://network.wwe.com/gen/content/tag/v1/section/in_ring/jsonv4.json
+    # Example link: http://network.wwe.com/gen/content/tag/v1/show_name/r/backlash/jsonv4.json
+
     json_response = urllib.urlopen("http://network.wwe.com/gen/content/tag/v1/show_name/r/" + show[0] + "/jsonv4.json")
     event = json.loads(json_response.read())
-    
+
     for i in event['list']:
         if i['type'] == 'wwe-show':
             year.append(i['itemTags']['year'])
             
     return year
+    
+def get_whole_year(show):
+
+    year = []
+
+    # Example link: http://network.wwe.com/gen/content/tag/v1/franchise/r/wwe/jsonv4.json
+    json_response = urllib.urlopen("http://network.wwe.com/gen/content/tag/v1/franchise/r/" + show + "/jsonv4.json")
+    event = json.loads(json_response.read())
+
+    for i in event['list']:
+        if i['type'] == 'wwe-section':
+            year.append(i['itemTags']['year'])
+    return year
 
         
 # link needs to be similar to http://network.wwe.com/gen/content/tag/v1/show_name/r/table_for_3/jsonv4.json
 def get_tvshow_nfo(link):
-
+    print link
     json_response = urllib.urlopen(link)
     show = json.loads(json_response.read())
     
@@ -314,7 +465,7 @@ def get_tvshow_nfo(link):
         
 # link needs to be similar to http://network.wwe.com/gen/content/tag/v1/show_name/2000/r/backlash/jsonv4.json
 def get_ppv_nfo(link):
-
+    print link
     json_response = urllib.urlopen(link)
     show = json.loads(json_response.read())
     
@@ -393,6 +544,33 @@ def get_collection_nfo(link):
     else:
         return "Error: Link wasn't for a collection"
                 
+def download_multiple(jsonlink):
+
+    show_id         = []
+    show_name       = []
+    show_date       = []
+
+    # Example link: http://network.wwe.com/gen/content/tag/v1/franchise/1989/r/wwe/jsonv4.json
+    json_response = urllib.urlopen(jsonlink)
+    #json_response = open("1.json")
+    event = json.loads(json_response.read())
+
+    # Count how many episodes are in the list ignoring the first entry
+    episodes = len(event['list'])-1
+
+    # Get a list of videos to download from the JSON file
+    for i in event['list']:
+        # The event has the type set as wwe-asset.
+        # wwe-show is where all the information for the comapny is. i.e. thumbnails and years etc
+        if i['type'] == 'wwe-asset':
+            # Get the event ID for the URL i.e. http://network.wwe.com/video/v31303817
+            show_id.append(i['itemTags']['media_playback_id'][0])
+            show_name.append(i['show_name'])
+            show_date.append(i['userDate'].split('T')[0])
+            
+
+    return show_id, show_name, show_date
+
 def clean_name(name):
     # Make the nfo a bit friendlier
     name = name.replace(" ",".")
