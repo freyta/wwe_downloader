@@ -57,7 +57,7 @@ class Network:
                            'password': self.password}
 
             s.post(LOGIN_URL, data=auth_values)
-
+            
             try:
                 self.user_uuid = unquote(s.cookies['mai']).split('useruuid=')[1].replace('[', '').replace(']', '')
                 self.cookies = s.cookies
@@ -219,16 +219,39 @@ def get_user_input_show_single():
         elif(int(user_year) < 0):
             print("Oops, you chose an invalid show. Quitting..")
             sys.exit()
+        
+        listcounter = 0
+        
+        episodes_array = get_episode_list(user_year_pretty, user_search_pretty)
+        
+        # title, year, video_id
+        for title, year, video_id in zip(episodes_array[0], episodes_array[1], episodes_array[2]):
+            print("Option " + str(listcounter) + ": - {} - {}").format(title,year)
+            listcounter = listcounter + 1
 
-        return_link = "http://network.wwe.com/gen/content/tag/v1/show_name/"+ user_year_pretty + "/r/" + user_search_pretty + "/jsonv4.json"
+        # Get the user input for which show to get the year from
+        episode = raw_input("Choose an episode from above\n")
+
+        episode = int(episode)
+
+        # If the input is higher than the amount of shows we have..
+        if(int(episode) >= listcounter):
+            print("Oops, you chose an invalid show. Quitting..")
+            sys.exit()
+        elif(int(episode) < 0):
+            print("Oops, you chose an invalid show. Quitting..")
+            sys.exit()
     
     if "PPV" in show_real[show_option]:
         show_type = "ppv"
+        return_link = "http://network.wwe.com/gen/content/tag/v1/show_name/"+ user_year_pretty + "/r/" + user_search_pretty + "/jsonv4.json"
+        return return_link, show_type
     elif "Collection" in show_real[show_option]:
         show_type = "collection"
+        return return_link, show_type
     else:
-        show_type = "tvshow"
-    return return_link, show_type
+        show_type = "single_tvshow"
+        return video_id, show_type, title, year
     
     
     
@@ -411,7 +434,29 @@ def get_whole_year(show):
             year.append(i['itemTags']['year'])
     return year
 
+    
+    
+def get_episode_list(year_needed, show):
+    title    = []
+    videoid  = []
+    date     = []
+    
+    # Example link: "http://network.wwe.com/gen/content/tag/v1/show_name/2017/r/mae_young_classic/jsonv4.json"
+    json_response = urllib.urlopen("http://network.wwe.com/gen/content/tag/v1/show_name/"+ year_needed + "/r/" + show + "/jsonv4.json")
+    show = json.loads(json_response.read())
+    
+    for i in show['list']:
+        if i['type'] == 'wwe-asset':
         
+            # The show title
+            title.append(i['show_name'])
+            # Get the videoid
+            videoid.append(i['itemTags']['media_playback_id'][0])
+            # Get the year
+            date.append(i['userDate'].split('T')[0])
+    return title, date, videoid
+    
+    
 # link needs to be similar to http://network.wwe.com/gen/content/tag/v1/show_name/r/table_for_3/jsonv4.json
 def get_tvshow_nfo(link):
     print link
@@ -504,7 +549,7 @@ def get_ppv_nfo(link):
         return "Saved the nfo"
 
 
-# link needs to be similar to http://network.wwe.com/gen/content/tag/v1/show_name/r/234493012/jsonv4.json
+# link needs to be similar to http://network.wwe.com/gen/content/tag/v1/show_name/r/260729358/jsonv4.json
 def get_collection_nfo(link):
     json_response = urllib.urlopen(link)
     show = json.loads(json_response.read())
@@ -570,6 +615,31 @@ def download_multiple(jsonlink):
             
 
     return show_id, show_name, show_date
+    
+    
+def download_collection(jsonlink):
+    print jsonlink
+    episode_id         = []
+    episode_name       = []
+    episode_date       = []
+
+    # Example link: http://network.wwe.com/gen/content/tag/v1/show_name/r/260729358/jsonv4.json
+    json_response = urllib.urlopen(jsonlink)
+    #json_response = open("1.json")
+    event = json.loads(json_response.read())
+
+    # Get a list of videos to download from the JSON file
+    for i in event['list']:
+        # The event has the type set as wwe-asset.
+        # wwe-show is where all the information for the comapny is. i.e. thumbnails and years etc
+        if i['type'] == 'wwe-asset':
+            # Get the event ID for the URL i.e. http://network.wwe.com/video/v31303817
+            episode_id.append(i['itemTags']['media_playback_id'][0])
+            episode_name.append(i['headline'])
+            episode_date.append(i['userDate'].split('T')[0])
+            
+
+    return episode_id, episode_name, episode_date
 
 def clean_name(name):
     # Make the nfo a bit friendlier
