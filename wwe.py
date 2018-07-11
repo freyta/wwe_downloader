@@ -157,7 +157,7 @@ def get_user_input_show_single():
         sys.exit()
 
     # Clear the screen after their choice
-    os.system('clear')
+    os.system('cls' if os.name=='nt' else 'clear')
 
 
     # Get a list of shows from option
@@ -187,7 +187,7 @@ def get_user_input_show_single():
     user_search_pretty = show_list[0][user_show][0]
 
     # Clear the screen after their choice
-    os.system('clear')
+    ]('clear')
     
     # Make sure we don't try to find a year for Collections
     if(show_real[show_option] == "Collections"):
@@ -277,7 +277,7 @@ def get_user_input_show_year():
         sys.exit()
 
     # Clear the screen after their choice
-    os.system('clear')
+    os.system('cls' if os.name=='nt' else 'clear')
     ######################
     # End of which company
     ######################
@@ -313,7 +313,7 @@ def get_user_input_show_year():
         user_search_pretty = show_list[0][user_show][0]
 
         # Clear the screen after their choice
-        os.system('clear')
+        os.system('cls' if os.name=='nt' else 'clear')
     else:
         # Since we want a PPV just skip
         user_show_pretty = show_real[show_option]
