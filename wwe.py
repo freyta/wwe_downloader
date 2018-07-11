@@ -251,7 +251,7 @@ def get_user_input_show_single():
         return return_link, show_type
     else:
         show_type = "single_tvshow"
-        return video_id, show_type, title, year
+        return episodes_array[2][episode], show_type, episodes_array[0][episode], episodes_array[1][episode]
     
     
     
