@@ -123,8 +123,7 @@ class Network:
 
             stream_url = (m3u8_url[:m3u8_url.rfind('/') + 1] + uri)
 
-            subprocess.call('ffmpeg -user_agent "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0" -headers "Cookie: ' + cookies_string + '" -i ' + stream_url + ' -c copy ' + new_name + '.ts -y', shell=True)
-            subprocess.call('ffmpeg -i ' + new_name + '.ts -c copy ' + new_name + '.mp4 -y', shell=True)
+            subprocess.call('ffmpeg -user_agent "Mozilla/5.0 (X11; Linux x86_64; rv:10.0) Gecko/20100101 Firefox/10.0" -headers "Cookie: ' + cookies_string + '" -i ' + stream_url + ' -c copy ' + new_name + '.mp4 -y', shell=True)
             
     def logout(self):
         with requests.Session() as s:
