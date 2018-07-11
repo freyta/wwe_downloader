@@ -87,4 +87,4 @@ else:
         # Get the video
         wwe_network.get_video_url(videoid, showname, quality)
         counter = counter + 1
-wwe.logout()
+wwe_network.logout()
