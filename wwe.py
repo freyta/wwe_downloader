@@ -187,7 +187,7 @@ def get_user_input_show_single():
     user_search_pretty = show_list[0][user_show][0]
 
     # Clear the screen after their choice
-    ]('clear')
+    os.system('cls' if os.name=='nt' else 'clear')
     
     # Make sure we don't try to find a year for Collections
     if(show_real[show_option] == "Collections"):
